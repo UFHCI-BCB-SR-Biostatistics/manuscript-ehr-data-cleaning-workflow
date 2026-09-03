@@ -6,15 +6,15 @@ This repository contains R code developed to support the data processing and cle
 
 The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary data-processing workflow consists of four sequential steps: cohort construction, laboratory biomarker identification and standardization, biomarker condensing and monthly aggregation, and biomarker merging.
 
-Additional R scripts used to conduct the statistical analyses presented in the manuscript are provided separately in the `Analysis/` directory.
+Additional R scripts used by the research team for subsequent data preparation and analyses are included in the `Code/Analysis/` directory. These additional analyses are separate from the analyses presented in the manuscript.
 
-All data processing and statistical analysis code included in this repository was implemented in **R**.
+All code included in this repository was implemented in **R**.
 
 ## Data Availability
 
 The patient-level EHR data used in this study are not included in this repository because the underlying data are restricted.
 
-Access to the source data is subject to the requirements and approvals of the original data provider. Accordingly, this repository contains the code used to implement the data-processing and analysis workflow but does not contain patient-level data.
+Access to the source data is subject to the requirements and approvals of the original data provider. Accordingly, this repository contains code documenting the data-processing workflow but does not contain patient-level data.
 
 Local directory structures and source filenames have been replaced with generic placeholders in the public code. Users with appropriate access to comparable data should specify the corresponding local paths and filenames before running the scripts.
 
@@ -34,16 +34,14 @@ The repository is organized as follows:
 │   │   └── 03_merging_biomarkers.R
 │   │
 │   └── Analysis/
-│       └── merge_biomarkers_demographics.R
-│
-├── Analysis/
-│   ├── core_analysis.R
-│   └── create_table1.R
+│       ├── merge_biomarkers_demographics.R
+│       ├── core_analysis.R
+│       └── create_table1.R
 │
 └── README.md
 ```
 
-The `Code/` directory contains scripts used for cohort construction, EHR data cleaning and processing, and preparation of the final analysis-ready dataset. The separate `Analysis/` directory contains the R scripts used to conduct the statistical analyses presented in the manuscript.
+The `Code/` directory contains the R scripts used for cohort construction, EHR data cleaning and processing, and subsequent data preparation and analyses. The `Code/Analysis/` directory includes both final data-preparation code associated with the processing workflow and additional analysis scripts used by the research team.
 
 ## Primary Data-Processing Workflow
 
@@ -96,15 +94,21 @@ This script also implements the lipid-component calculation used to derive a mis
 
 Combines the processed monthly biomarker datasets and reshapes the data into a subject-month format, with biomarker measurements represented as separate variables for subsequent analysis.
 
-## Final Data Preparation
+## Additional Data Preparation and Analysis Files
 
-`Code/Analysis/merge_biomarkers_demographics.R`
+The `Code/Analysis/` directory contains additional scripts used by the research team following the primary data-processing workflow.
 
-Following completion of the primary data-processing workflow, the processed biomarker data are combined with the demographic and diagnosis data to create the final analysis-ready dataset.
+### `merge_biomarkers_demographics.R`
 
-## Statistical Analysis Files
+Combines the processed biomarker data with the demographic and diagnosis data to create an analysis-ready dataset.
 
-The separate `Analysis/` directory contains the R scripts used to conduct the statistical analyses presented in the manuscript. These scripts are provided separately from the primary data-processing workflow to distinguish the EHR data-cleaning and preparation procedures from the subsequent statistical analyses.
+### `core_analysis.R`
+
+Contains additional analysis code used by the research team. This analysis is separate from what is presented in the manuscript.
+
+### `create_table1.R`
+
+Contains additional descriptive analysis code used by the research team. This analysis is separate from what is presented in the manuscript.
 
 ## Reproducibility and Use with Other EHR Data
 
@@ -112,7 +116,7 @@ This repository is intended to document the major data-processing procedures use
 
 The workflow reflects the structure and characteristics of the EHR data used in this study. EHR datasets may differ across data sources and institutions with respect to data structure, variable definitions, coding practices, laboratory naming conventions, measurement units, completeness, and data quality. Therefore, although the general workflow may be applicable to other EHR data sources, individual processing steps and code may require adaptation before being applied to a different EHR dataset.
 
-Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, final data preparation, and statistical analysis.
+Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, and subsequent data preparation.
 
 ## Citation
 
