@@ -37,8 +37,8 @@ The repository is organized as follows:
 │       └── merge_biomarkers_demographics.R
 │
 ├── Analysis/
-│   ├── [FIRST_ANALYSIS_FILE].R
-│   └── [SECOND_ANALYSIS_FILE].R
+│   ├── core_analysis.R
+│   └── create_table1.R
 │
 └── README.md
 ```
