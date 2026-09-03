@@ -6,7 +6,7 @@ This repository contains R code developed to support the data processing and cle
 
 The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary data-processing workflow consists of four sequential steps: cohort construction, laboratory biomarker identification and standardization, biomarker condensing and monthly aggregation, and biomarker merging.
 
-Additional R scripts used by the research team for subsequent data preparation and analyses are included in the `Code/Analysis/` directory. These additional analyses are separate from the analyses presented in the manuscript.
+Additional R scripts used for subsequent data preparation and analysis are included in the `Code/Analysis/` directory.
 
 All code included in this repository was implemented in **R**.
 
@@ -41,7 +41,7 @@ The repository is organized as follows:
 └── README.md
 ```
 
-The `Code/` directory contains the R scripts used for cohort construction, EHR data cleaning and processing, and subsequent data preparation and analyses. The `Code/Analysis/` directory includes both final data-preparation code associated with the processing workflow and additional analysis scripts used by the research team.
+The `Code/` directory contains R scripts used for cohort construction, EHR data cleaning and processing, and subsequent data preparation and analysis. The `Code/Analysis/` directory contains scripts used after completion of the primary data-processing workflow.
 
 ## Primary Data-Processing Workflow
 
@@ -82,7 +82,7 @@ The biomarkers processed include:
 
 Restricts biomarker measurements to the study-specific observation periods and applies biomarker-specific value thresholds.
 
-For patients with HCC, measurements are evaluated between the first liver disease diagnosis and first HCC diagnosis. For patients without HCC, measurements following the first liver disease diagnosis are evaluated.
+For patients with HCC, measurements are evaluated between the first liver disease diagnosis and the first HCC diagnosis. For patients without HCC, measurements following the first liver disease diagnosis are evaluated.
 
 When multiple measurements of the same biomarker are available within a calendar month, measurements are summarized to create monthly biomarker values.
 
@@ -94,9 +94,9 @@ This script also implements the lipid-component calculation used to derive a mis
 
 Combines the processed monthly biomarker datasets and reshapes the data into a subject-month format, with biomarker measurements represented as separate variables for subsequent analysis.
 
-## Additional Data Preparation and Analysis Files
+## Additional Data Preparation and Analysis
 
-The `Code/Analysis/` directory contains additional scripts used by the research team following the primary data-processing workflow.
+The `Code/Analysis/` directory contains scripts used for subsequent data preparation and analysis following the primary data-processing workflow.
 
 ### `merge_biomarkers_demographics.R`
 
@@ -104,11 +104,11 @@ Combines the processed biomarker data with the demographic and diagnosis data to
 
 ### `core_analysis.R`
 
-Contains additional analysis code used by the research team. This analysis is separate from what is presented in the manuscript.
+Contains code for additional analyses conducted using the processed data.
 
 ### `create_table1.R`
 
-Contains additional descriptive analysis code used by the research team. This analysis is separate from what is presented in the manuscript.
+Contains code used to generate descriptive summaries of the processed data.
 
 ## Reproducibility and Use with Other EHR Data
 
@@ -116,7 +116,7 @@ This repository is intended to document the major data-processing procedures use
 
 The workflow reflects the structure and characteristics of the EHR data used in this study. EHR datasets may differ across data sources and institutions with respect to data structure, variable definitions, coding practices, laboratory naming conventions, measurement units, completeness, and data quality. Therefore, although the general workflow may be applicable to other EHR data sources, individual processing steps and code may require adaptation before being applied to a different EHR dataset.
 
-Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, and subsequent data preparation.
+Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, and subsequent data preparation and analysis.
 
 ## Citation
 
