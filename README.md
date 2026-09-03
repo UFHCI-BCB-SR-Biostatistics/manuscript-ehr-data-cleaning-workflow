@@ -33,7 +33,7 @@ The repository is organized as follows:
 │   │   ├── 02_condensing_biomarkers.R
 │   │   └── 03_merging_biomarkers.R
 │   │
-│   └── Analysis/
+│   └── Final Analysis/
 │       ├── merge_biomarkers_demographics.R
 │       ├── core_analysis.R
 │       └── create_table1.R
@@ -96,7 +96,7 @@ Combines the processed monthly biomarker datasets and reshapes the data into a s
 
 ## Additional Data Preparation and Analysis
 
-The `Code/Analysis/` directory contains scripts used for subsequent data preparation and analysis following the primary data-processing workflow.
+The `Code/Final Analysis/` directory contains scripts used for subsequent data preparation and analysis following the primary data-processing workflow.
 
 ### `merge_biomarkers_demographics.R`
 
