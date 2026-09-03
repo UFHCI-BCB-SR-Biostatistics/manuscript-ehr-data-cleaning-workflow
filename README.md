@@ -6,8 +6,6 @@ This repository contains R code developed to support the data processing and cle
 
 The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary data-processing workflow consists of four sequential steps: cohort construction, laboratory biomarker identification and standardization, biomarker condensing and monthly aggregation, and biomarker merging.
 
-Additional R scripts used for subsequent data preparation and analysis are included in the `Code/Analysis/` directory.
-
 All code included in this repository was implemented in **R**.
 
 ## Data Availability
