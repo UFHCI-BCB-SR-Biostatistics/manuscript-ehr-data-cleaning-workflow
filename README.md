@@ -87,17 +87,15 @@ The primary data-processing sequence is:
    `Code/Laboratory Biomarkers/03_merging_biomarkers.R`  
    Combines monthly biomarker measurements and reshapes the processed biomarker data.
 
-## Analysis
+### Final Data Preparation
 
-The `Analysis/` directory contains additional R scripts used by the research team after completion of the primary data-processing workflow. These scripts are provided separately from the four-step workflow above to distinguish subsequent analytic data preparation and analysis from the primary EHR data-cleaning procedures.
+`Code/Analysis/merge_biomarkers_demographics.R`
 
-#### `merge_biomarkers_demographics.R`
+Combines the processed biomarker data with the demographic and diagnosis data to create the final analysis-ready dataset.
 
-Combines the processed biomarker data with the demographic and diagnosis data to prepare the analysis-ready dataset used by the research team.
+## Analysis Files
 
-#### `[SECOND_ANALYSIS_FILE_NAME].R`
-
-Contains additional analysis code used by the research team.
+The separate `Analysis/` directory contains additional files used by the research team for the analyses presented in the manuscript. These files are provided separately from the data-processing workflow described above to distinguish the primary EHR data-cleaning procedures from the subsequent statistical analyses.
 
 ## Reproducibility and Use with Other EHR Data
 
