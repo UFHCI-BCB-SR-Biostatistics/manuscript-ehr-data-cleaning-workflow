@@ -1,5 +1,5 @@
 # ==============================================================================
-# OneFlorida+ Laboratory Biomarker Processing
+# Laboratory Biomarker Processing
 # ==============================================================================
 
 # ---- Load libraries -----------------------------------------------------------
@@ -10,23 +10,22 @@ library(here)
 
 # ---- Project paths ------------------------------------------------------------
 
-# Patient-level EHR data are not included in the public repository.
-# Replace the placeholder file name with the appropriate source file name.
+# Restricted patient-level data are not included in this repository.
+# Specify the appropriate local paths and file names before running this script.
 
 raw_lab_file <- here(
-  "Data",
-  "Raw OneFL Data",
+  "SPECIFY_PATH",
   "laboratory_data.csv"
 )
 
-# Output directory used for biomarker-specific datasets
+# Specify the local directory for biomarker-specific output files.
+
 raw_biomarker_dir <- here(
-  "Data",
-  "Biomarker Data",
-  "UPDATED Raw Biomarker Data"
+  "SPECIFY_OUTPUT_PATH"
 )
 
-# Set to TRUE only when files should be written to disk
+# Set to TRUE only when files should be written to disk.
+
 SAVE_OUTPUTS <- FALSE
 
 
@@ -37,7 +36,8 @@ lab <- read_csv(
   show_col_types = FALSE
 )
 
-# Remove automatically generated index column if present
+# Remove automatically generated index column if present.
+
 if (names(lab)[1] %in% c("X", "...1")) {
   lab <- lab %>%
     select(-1)
@@ -48,7 +48,8 @@ if (names(lab)[1] %in% c("X", "...1")) {
 # Helper functions
 # ==============================================================================
 
-# Variables retained for each biomarker
+# Variables retained for each biomarker.
+
 lab_variables <- c(
   "Subject_ID",
   "RAW_LAB_NAME",
@@ -59,29 +60,43 @@ lab_variables <- c(
 )
 
 
-# Extract a biomarker based on predefined laboratory names
+# Extract a biomarker based on predefined laboratory names.
+
 get_biomarker <- function(data, biomarker_names) {
   data %>%
-    filter(RAW_LAB_NAME %in% biomarker_names) %>%
-    select(all_of(lab_variables))
+    filter(
+      RAW_LAB_NAME %in% biomarker_names
+    ) %>%
+    select(
+      all_of(lab_variables)
+    )
 }
 
 
-# Summarize raw laboratory names
+# Summarize raw laboratory names.
+
 check_lab_names <- function(data) {
   data %>%
-    count(RAW_LAB_NAME, sort = TRUE)
+    count(
+      RAW_LAB_NAME,
+      sort = TRUE
+    )
 }
 
 
-# Summarize measurement units
+# Summarize measurement units.
+
 check_units <- function(data) {
   data %>%
-    count(RESULT_UNIT, sort = TRUE)
+    count(
+      RESULT_UNIT,
+      sort = TRUE
+    )
 }
 
 
-# Calculate 99th percentile
+# Calculate 99th percentile.
+
 get_99th_percentile <- function(data) {
   quantile(
     data$RESULT_NUM,
@@ -91,7 +106,8 @@ get_99th_percentile <- function(data) {
 }
 
 
-# Save biomarker-specific dataset
+# Save biomarker-specific dataset.
+
 save_biomarker <- function(data, file_name) {
   
   if (SAVE_OUTPUTS) {
@@ -104,7 +120,10 @@ save_biomarker <- function(data, file_name) {
     
     write_csv(
       data,
-      file.path(raw_biomarker_dir, file_name)
+      file.path(
+        raw_biomarker_dir,
+        file_name
+      )
     )
   }
 }
@@ -129,16 +148,19 @@ ast1 <- get_biomarker(
   ast_names
 )
 
-# Check original unit distribution
+# Check original unit distribution.
+
 ast_original_unit_counts <- check_units(ast1)
 
-# Standardize measurement unit
+# Standardize measurement unit.
+
 ast1 <- ast1 %>%
   mutate(
     RESULT_UNIT = "U/L"
   )
 
-# Quality-control checks
+# Quality-control checks.
+
 ast_name_counts <- check_lab_names(ast1)
 ast_unit_counts <- check_units(ast1)
 
@@ -147,7 +169,7 @@ ast_99 <- get_99th_percentile(ast1)
 
 save_biomarker(
   ast1,
-  "All Raw AST Data.csv"
+  "ast_data.csv"
 )
 
 
@@ -173,12 +195,16 @@ alb1 <- get_biomarker(
   albumin_names
 )
 
-# Examine additional names containing "Alb"
+# Examine additional names containing "Alb".
+
 alblook <- lab %>%
   filter(
     str_detect(
       RAW_LAB_NAME,
-      regex("Alb", ignore_case = TRUE)
+      regex(
+        "Alb",
+        ignore_case = TRUE
+      )
     )
   ) %>%
   count(
@@ -186,10 +212,12 @@ alblook <- lab %>%
     sort = TRUE
   )
 
-# Check original units
+# Check original units.
+
 alb_original_unit_counts <- check_units(alb1)
 
-# Remove blank units and convert mg/dL to g/dL
+# Remove blank units and convert mg/dL to g/dL.
+
 alb1 <- alb1 %>%
   filter(
     !is.na(RESULT_UNIT),
@@ -203,7 +231,8 @@ alb1 <- alb1 %>%
     RESULT_UNIT = "g/dL"
   )
 
-# Quality-control checks
+# Quality-control checks.
+
 alb_name_counts <- check_lab_names(alb1)
 alb_unit_counts <- check_units(alb1)
 
@@ -212,7 +241,7 @@ alb_99 <- get_99th_percentile(alb1)
 
 save_biomarker(
   alb1,
-  "All Raw Albumin Data.csv"
+  "albumin_data.csv"
 )
 
 
@@ -234,17 +263,20 @@ alt1 <- get_biomarker(
   alt_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 alt_original_name_counts <- check_lab_names(alt1)
 alt_original_unit_counts <- check_units(alt1)
 
-# Standardize unit
+# Standardize unit.
+
 alt1 <- alt1 %>%
   mutate(
     RESULT_UNIT = "U/L"
   )
 
-# Quality-control checks
+# Quality-control checks.
+
 alt_name_counts <- check_lab_names(alt1)
 alt_unit_counts <- check_units(alt1)
 
@@ -253,7 +285,7 @@ alt_99 <- get_99th_percentile(alt1)
 
 save_biomarker(
   alt1,
-  "All Raw ALT Data.csv"
+  "alt_data.csv"
 )
 
 
@@ -283,23 +315,31 @@ bill1 <- get_biomarker(
   bilirubin_names
 )
 
-# Examine additional names containing "Bili"
+# Examine additional names containing "Bili".
+
 blook <- lab %>%
   filter(
     str_detect(
       RAW_LAB_NAME,
-      regex("Bili", ignore_case = TRUE)
+      regex(
+        "Bili",
+        ignore_case = TRUE
+      )
     )
   )
 
 bill_name_counts <- check_lab_names(bill1)
 bill_original_unit_counts <- check_units(bill1)
 
-# Remove unusable unit labels and standardize retained measurements
+# Remove unusable unit labels and standardize retained measurements.
+
 bill1 <- bill1 %>%
   filter(
     !is.na(RESULT_UNIT),
-    !RESULT_UNIT %in% c("UN", "")
+    !RESULT_UNIT %in% c(
+      "UN",
+      ""
+    )
   ) %>%
   mutate(
     RESULT_UNIT = "mg/dL"
@@ -312,7 +352,7 @@ bill_99 <- get_99th_percentile(bill1)
 
 save_biomarker(
   bill1,
-  "All Raw Bilirubin Data.csv"
+  "bilirubin_data.csv"
 )
 
 
@@ -335,11 +375,13 @@ tchol1 <- get_biomarker(
   total_cholesterol_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 tchol_name_counts <- check_lab_names(tchol1)
 tchol_original_unit_counts <- check_units(tchol1)
 
-# Standardize unit
+# Standardize unit.
+
 tchol1 <- tchol1 %>%
   mutate(
     RESULT_UNIT = "mg/dL"
@@ -352,7 +394,7 @@ tchol_99 <- get_99th_percentile(tchol1)
 
 save_biomarker(
   tchol1,
-  "All Raw Total Cholesterol Data.csv"
+  "total_cholesterol_data.csv"
 )
 
 
@@ -387,11 +429,13 @@ ldl1 <- get_biomarker(
   ldl_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 ldl_name_counts <- check_lab_names(ldl1)
 ldl_original_unit_counts <- check_units(ldl1)
 
-# Standardize unit
+# Standardize unit.
+
 ldl1 <- ldl1 %>%
   mutate(
     RESULT_UNIT = "mg/dL"
@@ -404,7 +448,7 @@ ldl_99 <- get_99th_percentile(ldl1)
 
 save_biomarker(
   ldl1,
-  "All Raw LDL Cholesterol Data.csv"
+  "ldl_cholesterol_data.csv"
 )
 
 
@@ -426,11 +470,13 @@ hdl1 <- get_biomarker(
   hdl_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 hdl_name_counts <- check_lab_names(hdl1)
 hdl_original_unit_counts <- check_units(hdl1)
 
-# Standardize unit
+# Standardize unit.
+
 hdl1 <- hdl1 %>%
   mutate(
     RESULT_UNIT = "mg/dL"
@@ -443,7 +489,7 @@ hdl_99 <- get_99th_percentile(hdl1)
 
 save_biomarker(
   hdl1,
-  "All Raw HDL Cholesterol Data.csv"
+  "hdl_cholesterol_data.csv"
 )
 
 
@@ -475,12 +521,16 @@ hemo1 <- get_biomarker(
   hemoglobin_names
 )
 
-# Examine additional names containing "Hemo"
+# Examine additional names containing "Hemo".
+
 hlook <- lab %>%
   filter(
     str_detect(
       RAW_LAB_NAME,
-      regex("Hemo", ignore_case = TRUE)
+      regex(
+        "Hemo",
+        ignore_case = TRUE
+      )
     )
   )
 
@@ -490,11 +540,13 @@ hemo_candidate_names <- hlook %>%
     sort = TRUE
   )
 
-# Check original names and units
+# Check original names and units.
+
 hemo_name_counts <- check_lab_names(hemo1)
 hemo_original_unit_counts <- check_units(hemo1)
 
-# Standardize unit
+# Standardize unit.
+
 hemo1 <- hemo1 %>%
   mutate(
     RESULT_UNIT = "g/dL"
@@ -507,7 +559,7 @@ hemo_99 <- get_99th_percentile(hemo1)
 
 save_biomarker(
   hemo1,
-  "All Raw Hemoglobin Data.csv"
+  "hemoglobin_data.csv"
 )
 
 
@@ -532,11 +584,13 @@ inr1 <- get_biomarker(
   inr_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 inr_name_counts <- check_lab_names(inr1)
 inr_original_unit_counts <- check_units(inr1)
 
-# Standardize unit
+# Standardize unit.
+
 inr1 <- inr1 %>%
   mutate(
     RESULT_UNIT = "{ratio}"
@@ -549,7 +603,7 @@ inr_99 <- get_99th_percentile(inr1)
 
 save_biomarker(
   inr1,
-  "All Raw INR Data.csv"
+  "inr_data.csv"
 )
 
 
@@ -577,11 +631,13 @@ pl1 <- get_biomarker(
   platelet_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 pl_name_counts <- check_lab_names(pl1)
 pl_original_unit_counts <- check_units(pl1)
 
-# Standardize unit
+# Standardize unit.
+
 pl1 <- pl1 %>%
   mutate(
     RESULT_UNIT = "10*3/uL"
@@ -594,7 +650,7 @@ pl_99 <- get_99th_percentile(pl1)
 
 save_biomarker(
   pl1,
-  "All Raw Platelets Data.csv"
+  "platelet_data.csv"
 )
 
 
@@ -611,11 +667,13 @@ trig1 <- get_biomarker(
   triglyceride_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 trig_name_counts <- check_lab_names(trig1)
 trig_original_unit_counts <- check_units(trig1)
 
-# Standardize unit
+# Standardize unit.
+
 trig1 <- trig1 %>%
   mutate(
     RESULT_UNIT = "mg/dL"
@@ -628,7 +686,7 @@ trig_99 <- get_99th_percentile(trig1)
 
 save_biomarker(
   trig1,
-  "All Raw Triglycerides Data.csv"
+  "triglyceride_data.csv"
 )
 
 
@@ -648,11 +706,13 @@ alp1 <- get_biomarker(
   afp_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 afp_name_counts <- check_lab_names(alp1)
 afp_original_unit_counts <- check_units(alp1)
 
-# Standardize unit
+# Standardize unit.
+
 alp1 <- alp1 %>%
   mutate(
     RESULT_UNIT = "ng/mL"
@@ -665,7 +725,7 @@ afp_99 <- get_99th_percentile(alp1)
 
 save_biomarker(
   alp1,
-  "All Raw Alpha-Feto Protein Data.csv"
+  "afp_data.csv"
 )
 
 
@@ -700,21 +760,29 @@ neut1 <- get_biomarker(
   neutrophil_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 neut_name_counts <- check_lab_names(neut1)
 neut_original_unit_counts <- check_units(neut1)
 
 # Retain absolute-count measurements only.
 # Percentage and unknown-unit records are excluded.
 # Counts reported per uL are converted to 10^3/uL.
+
 neut1 <- neut1 %>%
   filter(
     !is.na(RESULT_UNIT),
-    !RESULT_UNIT %in% c("%", "UN")
+    !RESULT_UNIT %in% c(
+      "%",
+      "UN"
+    )
   ) %>%
   mutate(
     RESULT_NUM = case_when(
-      RESULT_UNIT %in% c("/uL", "{cells}/uL") ~ RESULT_NUM / 1000,
+      RESULT_UNIT %in% c(
+        "/uL",
+        "{cells}/uL"
+      ) ~ RESULT_NUM / 1000,
       TRUE ~ RESULT_NUM
     ),
     RESULT_UNIT = "10*3/uL"
@@ -727,7 +795,7 @@ neut_99 <- get_99th_percentile(neut1)
 
 save_biomarker(
   neut1,
-  "All Raw Neutrophils Data.csv"
+  "neutrophil_data.csv"
 )
 
 
@@ -763,17 +831,22 @@ lymph1 <- get_biomarker(
   lymphocyte_names
 )
 
-# Check original names and units
+# Check original names and units.
+
 lymph_name_counts <- check_lab_names(lymph1)
 lymph_original_unit_counts <- check_units(lymph1)
 
 # Retain absolute-count measurements only.
 # Percentage and unknown-unit records are excluded.
 # Counts reported as cells/uL are converted to 10^3/uL.
+
 lymph1 <- lymph1 %>%
   filter(
     !is.na(RESULT_UNIT),
-    !RESULT_UNIT %in% c("%", "UN")
+    !RESULT_UNIT %in% c(
+      "%",
+      "UN"
+    )
   ) %>%
   mutate(
     RESULT_NUM = case_when(
@@ -790,7 +863,7 @@ lymph_99 <- get_99th_percentile(lymph1)
 
 save_biomarker(
   lymph1,
-  "All Raw Lymphocytes Data.csv"
+  "lymphocyte_data.csv"
 )
 
 

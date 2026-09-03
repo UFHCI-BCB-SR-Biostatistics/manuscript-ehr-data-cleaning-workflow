@@ -1,5 +1,5 @@
 # ==============================================================================
-# OneFlorida+ Biomarker Condensing and Monthly Aggregation
+# Biomarker Condensing and Monthly Aggregation
 # ==============================================================================
 
 # Load libraries
@@ -9,35 +9,31 @@ library(lubridate)
 library(rlang)
 
 # Project paths
-# Restricted patient-level data are not included in the public repository.
-# Replace placeholder input file names as needed for the local data source.
+# Restricted patient-level data are not included in this repository.
+# Specify the appropriate local paths and file names before running this script.
 
 raw_biomarker_dir <- here(
-  "Data",
-  "Biomarker Data",
-  "UPDATED Raw Biomarker Data"
+  "SPECIFY_PATH_TO_RAW_BIOMARKER_DATA"
 )
 
 mean_biomarker_dir <- here(
-  "Data",
-  "Biomarker Data",
-  "UPDATED Mean Biomarker Data"
+  "SPECIFY_OUTPUT_PATH_TO_MONTHLY_BIOMARKER_DATA"
 )
 
 exclusion_dir <- here(
-  "Data",
-  "Exclusion Summary Data"
+  "SPECIFY_OUTPUT_PATH_TO_EXCLUSION_DATA"
 )
 
 demographic_file <- here(
-  "Data",
-  "Clean Final Analysis Data",
-  "demographics_diagnosis.csv"
+  "SPECIFY_PATH_TO_ANALYTIC_COHORT",
+  "analytic_cohort_data.csv"
 )
 
 # Create output folders if they do not already exist
 dir.create(mean_biomarker_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(exclusion_dir, recursive = TRUE, showWarnings = FALSE)
+
+# All generated files contain restricted patient-level data and should not be committed to GitHub.
 
 #### Condensing Lab Results Function ####
 process <- function(lab_df,
@@ -57,7 +53,7 @@ process <- function(lab_df,
     filter(Subject_ID %in% dem$Subject_ID) %>%
     right_join(dem, by = "Subject_ID") %>%
     mutate(
-      lab_flag = 1,   # <-- all rows kept; no lab type filtering
+      lab_flag = 1,
       !!result_date_col := as.Date(!!result_date_col),
       First_LD_DATE     = as.Date(First_LD_DATE),
       First_HCC_DX_DATE    = as.Date(First_HCC_DX_DATE)
@@ -116,8 +112,8 @@ process <- function(lab_df,
     transmute(
       Subject_ID,
       HCC_group,
-      ld_date  = First_LD_DATE,        # <-- add LD date
-      hcc_date = First_HCC_DX_DATE,       # <-- add HCC date (NA for non-HCC)
+      ld_date  = First_LD_DATE,
+      hcc_date = First_HCC_DX_DATE,
       study_period,
       result_date = !!result_date_col,
       value       = !!result_col,
@@ -234,7 +230,7 @@ dem <- read_csv(
 
 #Read Data
 alb <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Albumin Data.csv"),
+  file.path(raw_biomarker_dir, "albumin_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -269,21 +265,21 @@ alb_m <- alb_out$monthly %>%
 
 summary(alb_m$mean_RESULT_NUM)
 names(alb_m)
-# write_csv(alb_m, file.path(mean_biomarker_dir, "alb_mean_data_110525.csv"))
+# write_csv(alb_m, file.path(mean_biomarker_dir, "albumin_monthly_data.csv"))
 
 #Exclusions 
 alb_ex <- alb_out$exclusions 
 alb_ex$Lab_Name <- "Albumin"
 alb_excl_summary <- alb_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(alb_ex, file.path(exclusion_dir, "Albumin Patient Exclusion 12.06.25.csv"))
+write_csv(alb_ex, file.path(exclusion_dir, "albumin_exclusions.csv"))
 
 #Latest lab results 
 alb_latest <- alb_out$last_all
 
 #### ALT ####
 alt <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw ALT Data.csv"),
+  file.path(raw_biomarker_dir, "alt_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -309,21 +305,21 @@ alt_m <- alt_out$monthly %>%
     RESULT_MONTH = ALT_RESULT_MONTH, 
     mean_RESULT_NUM = mean_ALT_RESULT_NUM)
 
-# write_csv(alt_m, file.path(mean_biomarker_dir, "alt_mean_data_110525.csv"))
+# write_csv(alt_m, file.path(mean_biomarker_dir, "alt_monthly_data.csv"))
 
 #Exclusions 
 alt_ex <- alt_out$exclusions
 alt_ex$Lab_Name <- "ALT"
 alt_excl_summary <- alt_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(alt_ex, file.path(exclusion_dir, "ALT Patient Exclusion 12.06.25.csv"))
+write_csv(alt_ex, file.path(exclusion_dir, "alt_exclusions.csv"))
 
 #Latest 
 alt_latest <- alt_out$last_all
 
 #### AST ####
 ast <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw AST Data.csv"),
+  file.path(raw_biomarker_dir, "ast_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -348,21 +344,21 @@ ast_m <- ast_out$monthly %>%
     RESULT_MONTH = AST_RESULT_MONTH, 
     mean_RESULT_NUM = mean_AST_RESULT_NUM)
 
-# write_csv(ast_m, file.path(mean_biomarker_dir, "ast_mean_data_110525.csv"))
+# write_csv(ast_m, file.path(mean_biomarker_dir, "ast_monthly_data.csv"))
 
 #Exclusions 
 ast_ex <- ast_out$exclusions
 ast_ex$Lab_Name <- "AST"
 ast_excl_summary <- ast_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(ast_ex, file.path(exclusion_dir, "AST Patient Exclusion 12.06.25.csv"))
+write_csv(ast_ex, file.path(exclusion_dir, "ast_exclusions.csv"))
 
 #Latest 
 ast_l <- ast_out$last_all
 
 #### Bilirubin ####
 bili <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Bilirubin Data.csv"),
+  file.path(raw_biomarker_dir, "bilirubin_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -387,21 +383,21 @@ bili_m <- bili_out$monthly %>%
     RESULT_MONTH = BILI_RESULT_MONTH, 
     mean_RESULT_NUM = mean_BILI_RESULT_NUM)
 
-# write_csv(bili_m, file.path(mean_biomarker_dir, "bili_mean_data_110525.csv"))
+# write_csv(bili_m, file.path(mean_biomarker_dir, "bilirubin_monthly_data.csv"))
 
 #Exclusions 
 bili_ex <- bili_out$exclusions
 bili_ex$Lab_Name <- "Bilirubin"
 bili_excl_summary <- bili_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(bili_ex, file.path(exclusion_dir, "Bilirubin Patient Exclusion 12.06.25.csv"))
+write_csv(bili_ex, file.path(exclusion_dir, "bilirubin_exclusions.csv"))
 
 #Latest 
 bili_l <- bili_out$last_all
 
 #### Total Cholesterol ####
 tchol <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Total Cholesterol Data.csv"),
+  file.path(raw_biomarker_dir, "total_cholesterol_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -437,11 +433,11 @@ tchol_ex <- tchol_out$exclusions
 tchol_ex$Lab_Name <- "Total Cholesterol"
 tchol_excl_summary <- tchol_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(tchol_ex, file.path(exclusion_dir, "Total Cholesterol Patient Exclusion 12.06.25.csv"))
+write_csv(tchol_ex, file.path(exclusion_dir, "total_cholesterol_exclusions.csv"))
 
 #### LDL Cholesterol ####
 ldl <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw LDL Cholesterol Data.csv"),
+  file.path(raw_biomarker_dir, "ldl_cholesterol_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -476,14 +472,14 @@ ldl_ex <- ldl_out$exclusions
 ldl_ex$Lab_Name <- "LDL Cholesterol"
 ldl_excl_summary <- ldl_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(ldl_ex, file.path(exclusion_dir, "LDL Cholesterol Patient Exclusion 12.06.25.csv"))
+write_csv(ldl_ex, file.path(exclusion_dir, "ldl_cholesterol_exclusions.csv"))
 
 #Latest
 ldl_l <- ldl_out$last_all
 
 #### HDL Cholesterol ####
 hdl <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw HDL Cholesterol Data.csv"),
+  file.path(raw_biomarker_dir, "hdl_cholesterol_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -515,11 +511,11 @@ hdl_ex <- hdl_out$exclusions
 hdl_ex$Lab_Name <- "HDL Cholesterol"
 hdl_excl_summary <- hdl_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(hdl_ex, file.path(exclusion_dir, "HDL Cholesterol Patient Exclusion 12.06.25.csv"))
+write_csv(hdl_ex, file.path(exclusion_dir, "hdl_cholesterol_exclusions.csv"))
 
 #### Triglycerides ####
 trig <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Triglycerides Data.csv"),
+  file.path(raw_biomarker_dir, "triglyceride_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -553,12 +549,12 @@ trig_ex <- trig_out$exclusions
 trig_ex$Lab_Name <- "Triglycerides"
 trig_excl_summary <- trig_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(trig_ex, file.path(exclusion_dir, "Triglycerides Patient Exclusion 12.06.25.csv"))
+write_csv(trig_ex, file.path(exclusion_dir, "triglycerides_exclusions.csv"))
 
 
 #### Hemoglobin ####
 hemo <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Hemoglobin Data.csv"),
+  file.path(raw_biomarker_dir, "hemoglobin_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -583,7 +579,7 @@ hemo_m <- hemo_out$monthly %>%
     RESULT_MONTH = HGB_RESULT_MONTH, 
     mean_RESULT_NUM = mean_HGB_RESULT_NUM)
 
-# write_csv(hemo_m, file.path(mean_biomarker_dir, "hemo_mean_data_110525.csv"))
+# write_csv(hemo_m, file.path(mean_biomarker_dir, "hemoglobin_monthly_data.csv"))
 
 #Latest 
 hemo_l <- hemo_out$last_all
@@ -593,11 +589,11 @@ hemo_ex <- hemo_out$exclusions
 hemo_ex$Lab_Name <- "Hemoglobin"
 hemo_excl_summary <- hemo_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(hemo_ex, file.path(exclusion_dir, "Hemoglobin Patient Exclusion 12.06.25.csv"))
+write_csv(hemo_ex, file.path(exclusion_dir, "hemoglobin_exclusions.csv"))
 
 #### INR ####
 inr <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw INR Data.csv"),
+  file.path(raw_biomarker_dir, "inr_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -622,7 +618,7 @@ inr_m <- inr_out$monthly %>%
     RESULT_MONTH = INR_RESULT_MONTH, 
     mean_RESULT_NUM = mean_INR_RESULT_NUM)
 
-# write_csv(inr_m, file.path(mean_biomarker_dir, "inr_mean_data_110525.csv"))
+# write_csv(inr_m, file.path(mean_biomarker_dir, "inr_monthly_data.csv"))
 
 #Latest 
 inr_l <- inr_out$last_all
@@ -632,11 +628,11 @@ inr_ex <- inr_out$exclusions
 inr_ex$Lab_Name <- "INR"
 inr_excl_summary <- inr_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(inr_ex, file.path(exclusion_dir, "INR Patient Exclusion 12.06.25.csv"))
+write_csv(inr_ex, file.path(exclusion_dir, "inr_exclusions.csv"))
 
 #### Platelet ####
 plat <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Platelets Data.csv"),
+  file.path(raw_biomarker_dir, "platelet_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -661,7 +657,7 @@ plat_m <- plat_out$monthly %>%
     RESULT_MONTH = PLAT_RESULT_MONTH, 
     mean_RESULT_NUM = mean_PLAT_RESULT_NUM)
 
-# write_csv(plat_m, file.path(mean_biomarker_dir, "plat_mean_data_110525.csv"))
+# write_csv(plat_m, file.path(mean_biomarker_dir, "platelet_monthly_data.csv"))
 
 #Latest 
 plat_l <- plat_out$last_all
@@ -671,11 +667,11 @@ plat_ex <- plat_out$exclusions
 plat_ex$Lab_Name <- "Platelets"
 plat_excl_summary <- plat_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(plat_ex, file.path(exclusion_dir, "Platelet Patient Exclusion 12.06.25.csv"))
+write_csv(plat_ex, file.path(exclusion_dir, "platelet_exclusions.csv"))
 
 #### Alpha-Feto Protein ####
 afp <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Alpha-Feto Protein Data.csv"),
+  file.path(raw_biomarker_dir, "afp_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -699,7 +695,7 @@ afp_m <- afp_out$monthly %>%
     RESULT_MONTH = AFP_RESULT_MONTH, 
     mean_RESULT_NUM = mean_AFP_RESULT_NUM)
 
-# write_csv(afp_m, file.path(mean_biomarker_dir, "afp_mean_data_110525.csv"))
+# write_csv(afp_m, file.path(mean_biomarker_dir, "afp_monthly_data.csv"))
 
 #Latest 
 afp_l <- afp_out$last_all
@@ -709,11 +705,11 @@ afp_ex <- afp_out$exclusions
 afp_ex$Lab_Name <- "Alpha-Fetoprotein"
 afp_excl_summary <- afp_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(afp_ex, file.path(exclusion_dir, "Alpha-Feto Protein Patient Exclusion 12.06.25.csv"))
+write_csv(afp_ex, file.path(exclusion_dir, "alpha_feto_protein_exclusions.csv"))
 
 #### Neutrophils ####
 neut <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Neutrophils Data.csv"),
+  file.path(raw_biomarker_dir, "neutrophil_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -737,7 +733,7 @@ neut_m <- neut_out$monthly %>%
     RESULT_MONTH = NEUT_RESULT_MONTH, 
     mean_RESULT_NUM = mean_NEUT_RESULT_NUM)
 
-# write_csv(neut_m, file.path(mean_biomarker_dir, "neut_mean_data_110525.csv"))
+# write_csv(neut_m, file.path(mean_biomarker_dir, "neutrophil_monthly_data.csv"))
 
 #Latest 
 neut_l <- neut_out$last_all
@@ -747,11 +743,11 @@ neut_ex <- neut_out$exclusions
 neut_ex$Lab_Name <- "Neutrophils"
 neut_excl_summary <- neut_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(neut_ex, file.path(exclusion_dir, "Neutrophil Patient Exclusion 12.06.25.csv"))
+write_csv(neut_ex, file.path(exclusion_dir, "neutrophil_exclusions.csv"))
 
 #### Lymphocytes ####
 lymph <- read_csv(
-  file.path(raw_biomarker_dir, "All Raw Lymphocytes Data.csv"),
+  file.path(raw_biomarker_dir, "lymphocyte_data.csv"),
   show_col_types = FALSE
 ) %>%
   select(-any_of(c("X", "...1"))) %>%
@@ -775,7 +771,7 @@ lymph_m <- lymph_out$monthly %>%
     RESULT_MONTH = LYMPH_RESULT_MONTH, 
     mean_RESULT_NUM = mean_LYMPH_RESULT_NUM)
 
-# write_csv(lymph_m, file.path(mean_biomarker_dir, "lymph_mean_data_110525.csv"))
+# write_csv(lymph_m, file.path(mean_biomarker_dir, "lymphocyte_monthly_data.csv"))
 
 #Latest 
 lymph_l <- lymph_out$last_all
@@ -785,7 +781,7 @@ lymph_ex <- lymph_out$exclusions
 lymph_ex$Lab_Name <- "Lymphocytes"
 lymph_excl_summary <- lymph_ex %>% group_by(reason) %>% summarise(n = dplyr::n(), .groups = "drop") %>% arrange(desc(n)) %>% mutate(pct = round(100*n/sum(n), 1))
 
-write_csv(lymph_ex, file.path(exclusion_dir, "Lymphocyte Patient Exclusion 12.06.25.csv"))
+write_csv(lymph_ex, file.path(exclusion_dir, "lymphocyte_exclusions.csv"))
 
 #### MEAN - Cholesterol Filling Formula ####
 tchol_m2 <- tchol_m %>% transmute(Subject_ID, RESULT_MONTH, mean_RESULT_NUM, RESULT_UNIT = "mg/dL", LAB_TYPE = "TC")
@@ -866,13 +862,13 @@ fc1 <- final_combined_data_m %>%
 fc2 <- final_combined_data_m %>%
   group_by(Subject_ID, RESULT_MONTH, LAB_TYPE) %>%
   mutate(
-    # 1) Use RESULT_NUM when RAW_LAB_NAME contains "Filled"
+    # 1. Use RESULT_NUM when RAW_LAB_NAME contains "Filled"
     .from_filled = is.na(mean_RESULT_NUM) &
       str_detect(RAW_LAB_NAME, regex("Filled", ignore_case = TRUE)) &
       !is.na(RESULT_NUM),
     mean_RESULT_NUM = if_else(.from_filled, RESULT_NUM, mean_RESULT_NUM),
     
-    # 2) If still NA, take any non-missing value from the same (Subject, Month, Lab)
+    # 2. If still NA, take any non-missing value from the same subject-month-lab group
     .grp_value = suppressWarnings(dplyr::first(na.omit(mean_RESULT_NUM))),
     .from_group = is.na(mean_RESULT_NUM) & !is.na(.grp_value),
     mean_RESULT_NUM = if_else(is.na(mean_RESULT_NUM), .grp_value, mean_RESULT_NUM),
@@ -884,9 +880,6 @@ fc2 <- final_combined_data_m %>%
   # Keep flags if you want; remove helper column
   select(-c(RAW_LAB_NAME, RESULT_NUM, .grp_value)) %>%
   distinct(Subject_ID, RESULT_MONTH, LAB_TYPE, .keep_all = TRUE)
-
-
-#05MAR202120200127200201150
 
 ### New Total Cholesterol ####
 new_tchol_m <- fc2 %>% 
@@ -910,7 +903,7 @@ tchol_m1 <- tchol_m %>%
 names(lymph_m)
 names(tchol_m1)
 
-write_csv(tchol_m1, file.path(mean_biomarker_dir, "tchol_mean_data_110525.csv"))
+write_csv(tchol_m1, file.path(mean_biomarker_dir, "total_cholesterol_monthly_data.csv"))
 
 ### New LDL Cholesterol ####
 new_ldl_m <- fc2 %>% 
@@ -932,7 +925,7 @@ ldl_m1 <- ldl_m %>%
   left_join(tchol_dem, by = "Subject_ID") %>%
   mutate(mean_RESULT_NUM = ifelse(mean_RESULT_NUM<0, NA, mean_RESULT_NUM))
 
-write_csv(ldl_m1, file.path(mean_biomarker_dir, "ldlchol_mean_data_110525.csv"))
+write_csv(ldl_m1, file.path(mean_biomarker_dir, "ldl_cholesterol_monthly_data.csv"))
 
 ### New HDL Cholesterol ####
 new_hdl_m <- fc2 %>% 
@@ -953,7 +946,7 @@ hdl_m1 <- hdl_m %>%
   dplyr::select(-c(7:10, HCC_YEAR)) %>%
   left_join(tchol_dem, by = "Subject_ID")
 
-write_csv(hdl_m1, file.path(mean_biomarker_dir, "hdlchol_mean_data_110525.csv"))
+write_csv(hdl_m1, file.path(mean_biomarker_dir, "hdl_cholesterol_monthly_data.csv"))
 
 
 ### New Triglycerides ####
@@ -976,5 +969,4 @@ trig_m1 <- trig_m %>%
   left_join(tchol_dem, by = "Subject_ID") %>%
   mutate(mean_RESULT_NUM = ifelse(mean_RESULT_NUM<0, NA, mean_RESULT_NUM))
 
-write_csv(trig_m1, file.path(mean_biomarker_dir, "trig_mean_data_110525.csv"))
-
+write_csv(trig_m1, file.path(mean_biomarker_dir, "triglyceride_monthly_data.csv"))

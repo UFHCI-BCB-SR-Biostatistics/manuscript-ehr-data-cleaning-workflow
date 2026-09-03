@@ -6,16 +6,21 @@ library(hms)
 # 1. Load data
 #------------------------------------------------------------
 
+# Restricted patient-level data are not included in this repository.
+# Specify the appropriate local paths and file names before running this script.
+
 vital <- read_csv(
-  here("Data", "Raw OneFL Data", "CaseCon_vital_v2.csv"),
+  here(
+    "SPECIFY_PATH",
+    "vital_signs_data.csv"
+  ),
   show_col_types = FALSE
 )
 
 final_data <- read_csv(
   here(
-    "Data",
-    "Clean Final Analysis Data",
-    "Final Clean Analysis Data with Biomarkers 11.06.25.csv"
+    "SPECIFY_PATH",
+    "analytic_data.csv"
   ),
   show_col_types = FALSE
 ) %>%
@@ -32,7 +37,10 @@ final_data <- read_csv(
 #------------------------------------------------------------
 
 bmi_subset <- vital %>%
-  semi_join(final_data, by = "Subject_ID") %>%
+  semi_join(
+    final_data,
+    by = "Subject_ID"
+  ) %>%
   transmute(
     Subject_ID,
     MEASURE_DATE = as.Date(MEASURE_DATE),
@@ -41,9 +49,14 @@ bmi_subset <- vital %>%
     WT,
     ORIGINAL_BMI
   ) %>%
-  left_join(final_data, by = "Subject_ID") %>%
+  left_join(
+    final_data,
+    by = "Subject_ID"
+  ) %>%
   mutate(
-    MEASURE_TIME_SORT = suppressWarnings(parse_hm(MEASURE_TIME))
+    MEASURE_TIME_SORT = suppressWarnings(
+      parse_hm(MEASURE_TIME)
+    )
   ) %>%
   arrange(
     Subject_ID,
@@ -51,13 +64,14 @@ bmi_subset <- vital %>%
     MEASURE_TIME_SORT
   )
 
-# Optional:
+
+# Optional export of restricted analytic-sample vital records
+
 # write_csv(
 #   bmi_subset,
 #   here(
-#     "Data",
-#     "BMI Data",
-#     "Raw BMI Analytic Sample Data - 05.06.26.csv"
+#     "SPECIFY_OUTPUT_PATH",
+#     "bmi_analytic_sample.csv"
 #   )
 # )
 
@@ -73,10 +87,16 @@ closest_first <- bmi_subset %>%
     MEASURE_DATE <= First_LD_DATE
   ) %>%
   mutate(
-    days_before_ld = as.integer(First_LD_DATE - MEASURE_DATE)
+    days_before_ld = as.integer(
+      First_LD_DATE - MEASURE_DATE
+    )
   ) %>%
-  group_by(Subject_ID) %>%
-  filter(days_before_ld == min(days_before_ld)) %>%
+  group_by(
+    Subject_ID
+  ) %>%
+  filter(
+    days_before_ld == min(days_before_ld)
+  ) %>%
   ungroup()
 
 
@@ -117,7 +137,10 @@ closest_bmi_ht_wt <- closest_first %>%
         !is.na(WT_final) &
         HT_final > 0 &
         WT_final > 0,
-      round((WT_final * 703) / HT_final^2, 2),
+      round(
+        (WT_final * 703) / HT_final^2,
+        2
+      ),
       NA_real_
     ),
     
@@ -136,7 +159,8 @@ closest_bmi_ht_wt <- closest_first %>%
       !is.na(WT_final) &
       !is.na(BMI_original),
     
-    has_original_bmi = !is.na(BMI_original),
+    has_original_bmi =
+      !is.na(BMI_original),
     
     has_ht_wt =
       !is.na(HT_final) &
@@ -163,7 +187,9 @@ closest_bmi_ht_wt <- closest_first %>%
     First_LD_DATE,
     MEASURE_DATE
   ) %>%
-  slice_head(n = 1) %>%
+  slice_head(
+    n = 1
+  ) %>%
   ungroup() %>%
   
   # Prefer a valid original BMI.
@@ -179,7 +205,8 @@ closest_bmi_ht_wt <- closest_first %>%
       original_bmi_valid ~
         "Original BMI",
       
-      is.na(BMI_original) & calculated_bmi_valid ~
+      is.na(BMI_original) &
+        calculated_bmi_valid ~
         "Calculated BMI - original missing",
       
       !is.na(BMI_original) &
@@ -207,7 +234,10 @@ closest_bmi_ht_wt <- closest_first %>%
 bmi_final_data <- final_data %>%
   left_join(
     closest_bmi_ht_wt,
-    by = c("Subject_ID", "First_LD_DATE")
+    by = c(
+      "Subject_ID",
+      "First_LD_DATE"
+    )
   )
 
 
@@ -218,18 +248,16 @@ bmi_final_data <- final_data %>%
 write_rds(
   bmi_final_data,
   here(
-    "Data",
-    "Clean Final Analysis Data",
-    "OneFL BMI Data - 05.08.25.rds"
+    "SPECIFY_OUTPUT_PATH",
+    "bmi_analysis_data.rds"
   )
 )
 
 write_csv(
   bmi_final_data,
   here(
-    "Data",
-    "Clean Final Analysis Data",
-    "OneFL BMI Data - 05.08.25.csv"
+    "SPECIFY_OUTPUT_PATH",
+    "bmi_analysis_data.csv"
   )
 )
 
@@ -239,7 +267,10 @@ write_csv(
 #------------------------------------------------------------
 
 patients_missing_bmi <- final_data %>%
-  select(Subject_ID, First_LD_DATE) %>%
+  select(
+    Subject_ID,
+    First_LD_DATE
+  ) %>%
   anti_join(
     closest_bmi_ht_wt %>%
       distinct(Subject_ID),
@@ -248,6 +279,7 @@ patients_missing_bmi <- final_data %>%
 
 
 # Review vital records for patients without a pre-LD measurement
+
 patients_missing_bmi_records <- bmi_subset %>%
   semi_join(
     patients_missing_bmi,
@@ -255,7 +287,8 @@ patients_missing_bmi_records <- bmi_subset %>%
   ) %>%
   mutate(
     measurement_timing = case_when(
-      is.na(MEASURE_DATE) | is.na(First_LD_DATE) ~
+      is.na(MEASURE_DATE) |
+        is.na(First_LD_DATE) ~
         "Missing date",
       
       MEASURE_DATE > First_LD_DATE ~
@@ -278,6 +311,7 @@ patients_missing_bmi_records <- bmi_subset %>%
 
 
 # Summarize why patients did not receive a baseline BMI
+
 missing_bmi_summary <- patients_missing_bmi_records %>%
   distinct(
     Subject_ID,
