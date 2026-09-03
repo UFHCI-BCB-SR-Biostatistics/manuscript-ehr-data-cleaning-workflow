@@ -4,7 +4,9 @@
 
 This repository contains R code developed to support the data processing and cleaning workflow described in the manuscript **“Managing and Cleaning Large-Scale Electronic Health Record Data.”**
 
-The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The workflow includes cohort construction, BMI data processing, laboratory biomarker identification and standardization, longitudinal biomarker processing, monthly aggregation of biomarker measurements, and creation of the final analytic dataset.
+The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary workflow includes cohort construction, laboratory biomarker identification and standardization, longitudinal biomarker processing and monthly aggregation, and merging of the processed biomarker data.
+
+Additional analysis scripts used by the research team are provided separately in the `Analysis/` directory.
 
 All data processing and analysis code included in this repository was implemented in **R**.
 
@@ -18,23 +20,13 @@ Local directory structures and source filenames have been replaced with generic 
 
 ## Repository Structure
 
-The code is organized into three main directories:
-
-- `Code/Demographics and Diagnosis/`
-- `Code/Laboratory Biomarkers/`
-- `Code/Analysis/`
+The repository contains code for the primary EHR data-processing workflow as well as separate analysis scripts used by the research team.
 
 ### Demographics and Diagnosis
 
 #### `demographics_diagnosis_cleaning.R`
 
 Constructs the study cohort using demographic and diagnosis data. The script identifies liver disease and hepatocellular carcinoma (HCC) diagnoses, determines the first qualifying diagnosis dates, applies cohort eligibility criteria, and performs quality-control checks.
-
-#### `bmi_data_processing.R`
-
-Processes BMI-related data after construction of the study cohort. Available height, weight, and BMI measurements are evaluated in relation to the first liver disease diagnosis date and used to derive BMI measurements for the analytic cohort.
-
-BMI processing is performed after cohort construction so that BMI measurements can be evaluated for patients meeting the study cohort criteria and in relation to the relevant diagnosis dates.
 
 ### Laboratory Biomarkers
 
@@ -75,33 +67,37 @@ This script also implements the lipid-component calculation used to derive a mis
 
 Combines the processed monthly biomarker datasets and reshapes the data into a subject-month format, with biomarker measurements represented as separate variables for subsequent analysis.
 
-### Analysis
+## Primary Data-Processing Workflow
+
+The primary data-processing sequence is:
+
+1. **Cohort construction**  
+   `Code/Demographics and Diagnosis/demographics_diagnosis_cleaning.R`  
+   Constructs the study cohort from demographic and diagnosis data.
+
+2. **Laboratory biomarker identification and standardization**  
+   `Code/Laboratory Biomarkers/01_obtaining_biomarkers.R`  
+   Identifies relevant laboratory biomarker records and standardizes laboratory names and measurement units.
+
+3. **Biomarker condensing and monthly aggregation**  
+   `Code/Laboratory Biomarkers/02_condensing_biomarkers.R`  
+   Applies study-period and value criteria and summarizes biomarker measurements by month.
+
+4. **Biomarker merging**  
+   `Code/Laboratory Biomarkers/03_merging_biomarkers.R`  
+   Combines monthly biomarker measurements and reshapes the processed biomarker data.
+
+## Analysis
+
+The `Analysis/` directory contains additional R scripts used by the research team after completion of the primary data-processing workflow. These scripts are provided separately from the four-step workflow above to distinguish subsequent analytic data preparation and analysis from the primary EHR data-cleaning procedures.
 
 #### `merge_biomarkers_demographics.R`
 
-Combines the processed biomarker data with the demographic and diagnosis data to create the dataset used for subsequent analyses.
+Combines the processed biomarker data with the demographic and diagnosis data to prepare the analysis-ready dataset used by the research team.
 
-## Workflow
+#### `[SECOND_ANALYSIS_FILE_NAME].R`
 
-The general data-processing sequence is:
-
-1. `Code/Demographics and Diagnosis/demographics_diagnosis_cleaning.R`
-   - Construct the study cohort from demographic and diagnosis data.
-
-2. `Code/Demographics and Diagnosis/bmi_data_processing.R`
-   - Process BMI data for the constructed cohort.
-
-3. `Code/Laboratory Biomarkers/01_obtaining_biomarkers.R`
-   - Identify and standardize laboratory biomarker records.
-
-4. `Code/Laboratory Biomarkers/02_condensing_biomarkers.R`
-   - Apply study-period and value criteria and aggregate biomarker measurements by month.
-
-5. `Code/Laboratory Biomarkers/03_merging_biomarkers.R`
-   - Merge monthly biomarker measurements and reshape the biomarker data.
-
-6. `Code/Analysis/merge_biomarkers_demographics.R`
-   - Merge processed biomarker data with demographic and diagnosis data for analysis.
+Contains additional analysis code used by the research team.
 
 ## Reproducibility and Use with Other EHR Data
 
