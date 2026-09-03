@@ -4,23 +4,23 @@
 
 This repository contains R code developed to support the data processing and cleaning workflow described in the manuscript **“Managing and Cleaning Large-Scale Electronic Health Record Data.”**
 
-The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary workflow includes cohort construction, laboratory biomarker identification and standardization, longitudinal biomarker processing and monthly aggregation, and merging of the processed biomarker data.
+The code documents a reproducible workflow for preparing large-scale electronic health record (EHR) data for analysis. The primary data-processing workflow consists of four sequential steps: cohort construction, laboratory biomarker identification and standardization, biomarker condensing and monthly aggregation, and biomarker merging.
 
-Additional analysis scripts used by the research team are provided separately in the `Analysis/` directory.
+Additional R scripts used to conduct the statistical analyses presented in the manuscript are provided separately in the `Analysis/` directory.
 
-All data processing and analysis code included in this repository was implemented in **R**.
+All data processing and statistical analysis code included in this repository was implemented in **R**.
 
 ## Data Availability
 
 The patient-level EHR data used in this study are not included in this repository because the underlying data are restricted.
 
-Access to the source data is subject to the requirements and approvals of the original data provider. Accordingly, this repository contains the code used to implement the data-processing workflow but does not contain patient-level data.
+Access to the source data is subject to the requirements and approvals of the original data provider. Accordingly, this repository contains the code used to implement the data-processing and analysis workflow but does not contain patient-level data.
 
 Local directory structures and source filenames have been replaced with generic placeholders in the public code. Users with appropriate access to comparable data should specify the corresponding local paths and filenames before running the scripts.
 
 ## Repository Structure
 
-The repository contains code for the primary EHR data-processing workflow as well as separate analysis scripts used by the research team.
+The repository contains code for the primary EHR data-processing workflow, final data preparation, and the statistical analyses presented in the manuscript.
 
 ### Demographics and Diagnosis
 
@@ -69,7 +69,7 @@ Combines the processed monthly biomarker datasets and reshapes the data into a s
 
 ## Primary Data-Processing Workflow
 
-The primary data-processing sequence is:
+The primary data-processing workflow consists of the following four sequential steps:
 
 1. **Cohort construction**  
    `Code/Demographics and Diagnosis/demographics_diagnosis_cleaning.R`  
@@ -93,9 +93,9 @@ The primary data-processing sequence is:
 
 Combines the processed biomarker data with the demographic and diagnosis data to create the final analysis-ready dataset.
 
-## Analysis Files
+## Statistical Analysis Files
 
-The separate `Analysis/` directory contains additional files used by the research team for the analyses presented in the manuscript. These files are provided separately from the data-processing workflow described above to distinguish the primary EHR data-cleaning procedures from the subsequent statistical analyses.
+The separate `Analysis/` directory contains the R scripts used to conduct the statistical analyses presented in the manuscript. These scripts are provided separately from the primary data-processing workflow to distinguish the EHR data-cleaning and preparation procedures from the subsequent statistical analyses.
 
 ## Reproducibility and Use with Other EHR Data
 
@@ -103,7 +103,7 @@ This repository is intended to document the major data-processing procedures use
 
 The workflow reflects the structure and characteristics of the EHR data used in this study. EHR datasets may differ across data sources and institutions with respect to data structure, variable definitions, coding practices, laboratory naming conventions, measurement units, completeness, and data quality. Therefore, although the general workflow may be applicable to other EHR data sources, individual processing steps and code may require adaptation before being applied to a different EHR dataset.
 
-Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, and preparation of analysis-ready data.
+Because the underlying patient-level data cannot be publicly distributed, the repository does not provide a fully executable replication dataset. Instead, the code documents the processing logic used for cohort construction, data cleaning and standardization, biomarker processing, quality control, final data preparation, and statistical analysis.
 
 ## Citation
 
