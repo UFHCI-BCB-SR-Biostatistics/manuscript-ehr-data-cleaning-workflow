@@ -20,19 +20,44 @@ Local directory structures and source filenames have been replaced with generic 
 
 ## Repository Structure
 
-The repository contains code for the primary EHR data-processing workflow, final data preparation, and the statistical analyses presented in the manuscript.
+The repository is organized as follows:
 
-### Demographics and Diagnosis
+```text
+.
+├── Code/
+│   ├── Demographics and Diagnosis/
+│   │   └── demographics_diagnosis_cleaning.R
+│   │
+│   ├── Laboratory Biomarkers/
+│   │   ├── 01_obtaining_biomarkers.R
+│   │   ├── 02_condensing_biomarkers.R
+│   │   └── 03_merging_biomarkers.R
+│   │
+│   └── Analysis/
+│       └── merge_biomarkers_demographics.R
+│
+├── Analysis/
+│   ├── [FIRST_ANALYSIS_FILE].R
+│   └── [SECOND_ANALYSIS_FILE].R
+│
+└── README.md
+```
 
-#### `demographics_diagnosis_cleaning.R`
+The `Code/` directory contains scripts used for cohort construction, EHR data cleaning and processing, and preparation of the final analysis-ready dataset. The separate `Analysis/` directory contains the R scripts used to conduct the statistical analyses presented in the manuscript.
+
+## Primary Data-Processing Workflow
+
+The primary data-processing workflow consists of the following four sequential steps:
+
+### 1. Cohort Construction
+
+`Code/Demographics and Diagnosis/demographics_diagnosis_cleaning.R`
 
 Constructs the study cohort using demographic and diagnosis data. The script identifies liver disease and hepatocellular carcinoma (HCC) diagnoses, determines the first qualifying diagnosis dates, applies cohort eligibility criteria, and performs quality-control checks.
 
-### Laboratory Biomarkers
+### 2. Laboratory Biomarker Identification and Standardization
 
-Laboratory biomarker processing is performed sequentially using three scripts.
-
-#### `01_obtaining_biomarkers.R`
+`Code/Laboratory Biomarkers/01_obtaining_biomarkers.R`
 
 Identifies laboratory records corresponding to the biomarkers evaluated in the study and standardizes laboratory names and measurement units where appropriate. The script also performs quality-control checks on laboratory names, measurement units, and biomarker value distributions.
 
@@ -53,7 +78,9 @@ The biomarkers processed include:
 - Neutrophils
 - Lymphocytes
 
-#### `02_condensing_biomarkers.R`
+### 3. Biomarker Condensing and Monthly Aggregation
+
+`Code/Laboratory Biomarkers/02_condensing_biomarkers.R`
 
 Restricts biomarker measurements to the study-specific observation periods and applies biomarker-specific value thresholds.
 
@@ -63,35 +90,17 @@ When multiple measurements of the same biomarker are available within a calendar
 
 This script also implements the lipid-component calculation used to derive a missing lipid value when the other required lipid components are available.
 
-#### `03_merging_biomarkers.R`
+### 4. Biomarker Merging
+
+`Code/Laboratory Biomarkers/03_merging_biomarkers.R`
 
 Combines the processed monthly biomarker datasets and reshapes the data into a subject-month format, with biomarker measurements represented as separate variables for subsequent analysis.
 
-## Primary Data-Processing Workflow
-
-The primary data-processing workflow consists of the following four sequential steps:
-
-1. **Cohort construction**  
-   `Code/Demographics and Diagnosis/demographics_diagnosis_cleaning.R`  
-   Constructs the study cohort from demographic and diagnosis data.
-
-2. **Laboratory biomarker identification and standardization**  
-   `Code/Laboratory Biomarkers/01_obtaining_biomarkers.R`  
-   Identifies relevant laboratory biomarker records and standardizes laboratory names and measurement units.
-
-3. **Biomarker condensing and monthly aggregation**  
-   `Code/Laboratory Biomarkers/02_condensing_biomarkers.R`  
-   Applies study-period and value criteria and summarizes biomarker measurements by month.
-
-4. **Biomarker merging**  
-   `Code/Laboratory Biomarkers/03_merging_biomarkers.R`  
-   Combines monthly biomarker measurements and reshapes the processed biomarker data.
-
-### Final Data Preparation
+## Final Data Preparation
 
 `Code/Analysis/merge_biomarkers_demographics.R`
 
-Combines the processed biomarker data with the demographic and diagnosis data to create the final analysis-ready dataset.
+Following completion of the primary data-processing workflow, the processed biomarker data are combined with the demographic and diagnosis data to create the final analysis-ready dataset.
 
 ## Statistical Analysis Files
 
