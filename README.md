@@ -39,7 +39,7 @@ The repository is organized as follows:
 └── README.md
 ```
 
-The `Code/` directory contains R scripts used for cohort construction, EHR data cleaning and processing, and subsequent data preparation and analysis. The `Code/Analysis/` directory contains scripts used after completion of the primary data-processing workflow.
+The `Code/` directory contains R scripts used for cohort construction, EHR data cleaning and processing, and subsequent data preparation and analysis. 
 
 ## Primary Data-Processing Workflow
 
